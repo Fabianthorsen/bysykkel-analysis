@@ -6,7 +6,6 @@ import requests
 BASE_URL = "https://data.urbansharing.com"
 ENDPOINT = "oslobysykkel.no/trips/v1"
 OUTDIR = "./data/trips/v1"
-TIMESTAMP = datetime.now().date()
 
 if not os.path.exists(OUTDIR):
     os.makedirs(OUTDIR)
