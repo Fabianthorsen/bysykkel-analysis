@@ -14,9 +14,6 @@ YEARS = [2016, 2017, 2018]
 MONTHS = range(1, 13)
 
 
-if not os.path.exists(OUTDIR):
-    os.makedirs(OUTDIR)
-
 for year in YEARS:
     subdir = f"{OUTDIR}/{year}"
 
