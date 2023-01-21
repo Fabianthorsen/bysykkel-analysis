@@ -1,7 +1,5 @@
-import enum
 import os
 import shutil
-import zipfile
 from io import BytesIO
 from urllib import error
 from urllib.request import urlopen
