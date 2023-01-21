@@ -1,6 +1,6 @@
 import enum
-import json
 import os
+import shutil
 import zipfile
 from io import BytesIO
 from urllib import error
@@ -10,35 +10,38 @@ from zipfile import ZipFile
 BASE_URL = "https://data-legacy.urbansharing.com"
 ENDPOINT = "oslobysykkel.no"
 OUTDIR = "./data/trips/legacy"
-
-
-class ResponseCode(enum.Enum):
-    OK = 200
-    NOT_FOUND = 404
-
-    def __eq__(self, other):
-        return self.value == other
+YEARS = [2016, 2017, 2018]
+MONTHS = range(1, 13)
 
 
 if not os.path.exists(OUTDIR):
     os.makedirs(OUTDIR)
 
-for year in range(2016, 2019):
-    subdir = f"{OUTDIR}/{year}/"
+for year in YEARS:
+    subdir = f"{OUTDIR}/{year}"
 
-    if not os.path.exists(subdir):
-        os.mkdir(subdir)
-
-    for month in range(1, 13):
+    for month in MONTHS:
         filename = f"{month:02d}.json"
+
         url = f"{BASE_URL}/{ENDPOINT}/{year}/{filename}.zip"
 
         if not os.path.isfile(f"{subdir}/{filename}"):
             try:
                 resp = urlopen(url)
+
                 with ZipFile(BytesIO(resp.read())) as zip_file:
-                    for file in zip_file.namelist():
-                        zip_file.extract(file, f"{subdir}/{filename}")
+                    for file_info in zip_file.infolist():
+
+                        if file_info.is_dir():
+                            continue
+
+                        file_path = file_info.filename
+                        extracted_path = os.path.join(subdir, file_path)
+                        os.makedirs(os.path.dirname(extracted_path), exist_ok=True)
+
+                        with open(extracted_path, "wb") as dest:
+                            with zip_file.open(file_info, "r") as source:
+                                shutil.copyfileobj(source, dest)
 
                     zip_file.close()
 
